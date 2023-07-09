@@ -7,11 +7,12 @@ import LoginForm from './LoginForm';
 import Auth from '../utils/auth';
 
 const AppNavbar = () => {
-  // set modal display state
+  // Set modal display state
   const [showModal, setShowModal] = useState(false);
 
   return (
     <>
+      {/* Navigation Bar */}
       <Navbar bg='dark' variant='dark' expand='lg'>
         <Container fluid>
           <Navbar.Brand as={Link} to='/'>
@@ -20,15 +21,18 @@ const AppNavbar = () => {
           <Navbar.Toggle aria-controls='navbar' />
           <Navbar.Collapse id='navbar' className='d-flex flex-row-reverse'>
             <Nav className='ml-auto d-flex'>
+              {/* Search For Books link */}
               <Nav.Link as={Link} to='/'>
                 Search For Books
               </Nav.Link>
-              {/* if user is logged in show saved books and logout */}
+              {/* Conditionally show saved books and logout if user is logged in, otherwise show login/signup */}
               {Auth.loggedIn() ? (
                 <>
+                  {/* Saved Books link */}
                   <Nav.Link as={Link} to='/saved'>
                     See Your Books
                   </Nav.Link>
+                  {/* Logout button */}
                   <Nav.Link onClick={Auth.logout}>Logout</Nav.Link>
                 </>
               ) : (
@@ -38,20 +42,24 @@ const AppNavbar = () => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      {/* set modal data up */}
+
+      {/* Modal for Login/Sign Up */}
       <Modal
         size='lg'
         show={showModal}
         onHide={() => setShowModal(false)}
-        aria-labelledby='signup-modal'>
-        {/* tab container to do either signup or login component */}
+        aria-labelledby='signup-modal'
+      >
+        {/* Tab container for switching between Login and Sign Up */}
         <Tab.Container defaultActiveKey='login'>
           <Modal.Header closeButton>
             <Modal.Title id='signup-modal'>
               <Nav variant='pills'>
+                {/* Login tab */}
                 <Nav.Item>
                   <Nav.Link eventKey='login'>Login</Nav.Link>
                 </Nav.Item>
+                {/* Sign Up tab */}
                 <Nav.Item>
                   <Nav.Link eventKey='signup'>Sign Up</Nav.Link>
                 </Nav.Item>
@@ -61,9 +69,11 @@ const AppNavbar = () => {
           <Modal.Body>
             <Tab.Content>
               <Tab.Pane eventKey='login'>
+                {/* Login Form */}
                 <LoginForm handleModalClose={() => setShowModal(false)} />
               </Tab.Pane>
               <Tab.Pane eventKey='signup'>
+                {/* Sign Up Form */}
                 <SignUpForm handleModalClose={() => setShowModal(false)} />
               </Tab.Pane>
             </Tab.Content>

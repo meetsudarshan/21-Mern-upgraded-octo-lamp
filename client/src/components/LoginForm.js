@@ -1,30 +1,25 @@
-// see SignupForm.js for comments
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
+import { loginUser } from '../utils/API';
 import Auth from '../utils/auth';
 
-//import mutatiuon and LOGIN_USER
-import { useMutation } from '@apollo/client';
-import { LOGIN_USER } from '../utils/mutations';
-
 const LoginForm = () => {
-  const [userFormData, setUserFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-   // createUser defined for mutation LOGIN_USER
-   const [loginUser] = useMutation(LOGIN_USER);
-
+  // Handle input changes in the form
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setUserFormData({ ...userFormData, [name]: value });
+    setFormData({ ...formData, [name]: value });
   };
 
+  // Handle form submission
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    // check if form has everything (as per react-bootstrap docs)
+    // Check if form is valid
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
@@ -32,19 +27,23 @@ const LoginForm = () => {
     }
 
     try {
-      const { data } = await loginUser({
-        variables: userFormData,
-      });
+      // Call loginUser function from API with form data
+      const response = await loginUser(formData);
 
+      if (!response.ok) {
+        throw new Error('Something went wrong!');
+      }
 
-    
-      Auth.login(data.login.token);
+      const { token, user } = await response.json();
+      console.log(user);
+      Auth.login(token);
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
 
-    setUserFormData({
+    // Clear the form data after submission
+    setFormData({
       username: '',
       email: '',
       password: '',
@@ -64,7 +63,7 @@ const LoginForm = () => {
             placeholder='Your email'
             name='email'
             onChange={handleInputChange}
-            value={userFormData.email}
+            value={formData.email}
             required
           />
           <Form.Control.Feedback type='invalid'>Email is required!</Form.Control.Feedback>
@@ -77,15 +76,16 @@ const LoginForm = () => {
             placeholder='Your password'
             name='password'
             onChange={handleInputChange}
-            value={userFormData.password}
+            value={formData.password}
             required
           />
           <Form.Control.Feedback type='invalid'>Password is required!</Form.Control.Feedback>
         </Form.Group>
         <Button
-          disabled={!(userFormData.email && userFormData.password)}
+          disabled={!(formData.email && formData.password)}
           type='submit'
-          variant='success'>
+          variant='success'
+        >
           Submit
         </Button>
       </Form>

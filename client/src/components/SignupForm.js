@@ -2,31 +2,31 @@ import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
 import Auth from '../utils/auth';
-
-//import mutatiuon and ADD_USER
 import { useMutation } from '@apollo/client';
 import { ADD_USER } from '../utils/mutations';
 
 const SignupForm = () => {
-  // set initial form state
-  const [userFormData, setUserFormData] = useState({ username: '', email: '', password: '' });
-  // set state for form validation
+  // Set initial form state
+  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  // Set state for form validation
   const [validated] = useState(false);
-  // set state for alert
+  // Set state for alert
   const [showAlert, setShowAlert] = useState(false);
 
-  // createUser defined for mutation ADD_USER
-  const [createUser] = useMutation(ADD_USER);
+  // Mutation hook for addUser mutation
+  const [addUser] = useMutation(ADD_USER);
 
+  // Handle input changes in the form
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setUserFormData({ ...userFormData, [name]: value });
+    setFormData({ ...formData, [name]: value });
   };
 
+  // Handle form submission
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    // check if form has everything (as per react-bootstrap docs)
+    // Check if form is valid
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
@@ -34,21 +34,22 @@ const SignupForm = () => {
     }
 
     try {
-      const { data } = await createUser({
-        variables: { ...userFormData },
+      // Call addUser mutation with form data
+      const { data } = await addUser({
+        variables: { ...formData },
       });
 
-      console.log(data)
+      console.log(data);
 
-
+      // Login user and save the token to local storage
       Auth.login(data.addUser.token);
-
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
 
-    setUserFormData({
+    // Clear the form data after submission
+    setFormData({
       username: '',
       email: '',
       password: '',
@@ -57,9 +58,8 @@ const SignupForm = () => {
 
   return (
     <>
-      {/* This is needed for the validation functionality above */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
-        {/* show alert if server response is bad */}
+        {/* Show alert if server response is bad */}
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
           Something went wrong with your signup!
         </Alert>
@@ -71,7 +71,7 @@ const SignupForm = () => {
             placeholder='Your username'
             name='username'
             onChange={handleInputChange}
-            value={userFormData.username}
+            value={formData.username}
             required
           />
           <Form.Control.Feedback type='invalid'>Username is required!</Form.Control.Feedback>
@@ -84,7 +84,7 @@ const SignupForm = () => {
             placeholder='Your email address'
             name='email'
             onChange={handleInputChange}
-            value={userFormData.email}
+            value={formData.email}
             required
           />
           <Form.Control.Feedback type='invalid'>Email is required!</Form.Control.Feedback>
@@ -97,15 +97,17 @@ const SignupForm = () => {
             placeholder='Your password'
             name='password'
             onChange={handleInputChange}
-            value={userFormData.password}
+            value={formData.password}
             required
           />
           <Form.Control.Feedback type='invalid'>Password is required!</Form.Control.Feedback>
         </Form.Group>
+
         <Button
-          disabled={!(userFormData.username && userFormData.email && userFormData.password)}
+          disabled={!(formData.username && formData.email && formData.password)}
           type='submit'
-          variant='success'>
+          variant='success'
+        >
           Submit
         </Button>
       </Form>
